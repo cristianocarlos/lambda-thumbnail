@@ -1,0 +1,28 @@
+{
+  "name": "lambda-thumbnailer",
+  "version": "0.1.0",
+  "description": "A simple AWS Lambda script to thumbnail images and PDFs",
+  "author": "Franklyn Tackitt <frank@comanage.com>",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DisruptiveLabs/lambda-thumbnailer"
+  },
+  "bugs": {
+    "url": "https://github.com/DisruptiveLabs/lambda-thumbnailer/issues"
+  },
+  "keywords": [
+    "AWS",
+    "lambda",
+    "thumbnail"
+  ],
+  "dependencies": {
+    "async": "^0.8.0",
+    "gm": "^1.23.1",
+    "mktemp": "^1.0.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "locally": "node -e \"console.log(require('./index').handler({}));\""
+  }
+}
