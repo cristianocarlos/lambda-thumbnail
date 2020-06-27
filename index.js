@@ -1,10 +1,10 @@
 // dependencies
 var async = require('async');
 var AWS = require('aws-sdk');
-var gm = require('gm').subClass({imageMagick: true}); // Enable ImageMagick integration.
+var gm = require('gm').subClass({imageMagick: true, appPath: '/opt/bin/'}); // Enable ImageMagick integration.
+var gs = require('gs');
 var util = require('util');
 var fs = require('fs');
-var mktemp = require('mktemp');
 
 // constants
 var MAX_WIDTH  = 296;
@@ -53,17 +53,37 @@ exports.handler = function (event, context, callback) {
             Key: srcKey
         }, next);
       },
+      function convertIfPdf (response, next) {
+        if (imageType == 'pdf') {
+          fs.writeFile('/tmp/temp.pdf', response.Body, function (err) {
+            if (!err) {
+              gs().batch().nopause().executablePath('/opt/bin/./gs').device('png16m').input("/tmp/temp.pdf").output('/tmp/temp.png').exec(function (err, stdout, stderr){
+                if (!err && !stderr) {
+                  var data = fs.readFileSync('/tmp/temp.png');
+                  next(null, data);
+                } else {
+                  console.error('ERROR convertIfPdf err: ' + err);
+                  console.error('ERROR convertIfPdf stderr: ' + stderr);
+                }
+              });
+            }
+          });
+        } else {
+          next(null, response);
+        }
+      },
       function transform (response, next) {
-        var image = gm(response.Body);
-        var tempPdfFile;
-        var resolvedImageType = imageType;
-        var resolvedContentType = response.ContentType;
+        var image;
+        var resolvedImageType;
+        var resolvedContentType;
         if (imageType === 'pdf') {
-          tempPdfFile = mktemp.createFileSync('/tmp/XXXXXXXXXX.pdf');
-          fs.writeFileSync(tempPdfFile, response.Body);
-          image = gm(tempPdfFile + '[0]').flatten().quality(100);
+          image = gm(response);
           resolvedContentType = 'image/png';
           resolvedImageType = 'png';
+        } else {
+          image = gm(response.Body);
+          resolvedContentType = response.ContentType;
+          resolvedImageType = imageType
         }
         image.size(function (err, size) {
           if (!err) {
@@ -77,9 +97,6 @@ exports.handler = function (event, context, callback) {
   
             // Transform the image buffer in memory.
             this.resize(width, height).toBuffer(resolvedImageType, function (err, buffer) {
-              if (tempPdfFile) {
-                fs.unlinkSync(tempPdfFile);
-              }
               if (err) {
                 next(err);
               } else {
@@ -87,7 +104,7 @@ exports.handler = function (event, context, callback) {
               }
             });
           } else {
-            console.error('ERROR image.size: ' + err);
+            console.error('ERROR transform image.size: ' + err);
           }
         });
       },

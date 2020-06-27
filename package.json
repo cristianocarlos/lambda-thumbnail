@@ -19,7 +19,7 @@
   "dependencies": {
     "async": "^0.8.0",
     "gm": "^1.23.1",
-    "mktemp": "^1.0.0"
+    "gs": "https://github.com/sina-masnadi/node-gs/tarball/master",
   },
   "license": "MIT",
   "scripts": {
