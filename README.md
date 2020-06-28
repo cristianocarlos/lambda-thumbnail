@@ -3,7 +3,7 @@
 Referência:
 https://stackoverflow.com/questions/57067351/imagemagick-not-converting-pdfs-anymore-in-aws-lambda
 
-## Incluir layer para usar ghost-script 
+## Incluir layer para usar o ghost-script 
 
 Somente o diretório bin desse projeto
 
