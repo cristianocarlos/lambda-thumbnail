@@ -17,7 +17,7 @@
     "thumbnail"
   ],
   "dependencies": {
-    "async": "^0.8.0",
+    "async": "^2.6.4",
     "gm": "^1.23.1",
     "gs": "https://github.com/sina-masnadi/node-gs/tarball/master"
   },
